@@ -1,0 +1,108 @@
+#summary Main page. Short GMT description.
+
+= GMT - Generic Memory Tool =
+
+GMT is a collection of classes for easy, human-friendly memory access in your console tools. I've got the idea for GMT as I worked on a hardware project. The hardware (FPGA)
+could be accessed via shared memory.
+
+GMT allows to displays and modify data in memory using simple commands.
+The class is intended to be used in console tools, therefore the commands are 
+human readable strings.
+
+With GMT you can:
+  dump memory in human friendly form. GMT displays memory in hex- and binary representation along with interpretation of data in memory
+  set/clear one bit in memory
+  assign a value to a word of particular word-length
+
+In order to show data in human friendly form GMT should be able to interprete the data.
+GMT interpretes the data using data description. The data is described as human
+readable text. 
+
+== Syntax of configuration file ==
+Lines beginning with # are comments. Consecutive spaces are ignored.
+In GMT world a mory block consists of _registers_. All _registers_ have the same width. Each _register_ consists of flag-fields and/or data-fields. The width of the fields are at least one bit and maximum the width of _register_.
+
+Register definition:
+{{{
+reg REGISTER_NAME OFFSET MODE [#Comment]'
+}}}
+REGISTER_NAME is a string, OFFSET is hex-number and MODE is [rw]
+
+Flags definition:
+{{{
+  for_regs REGISTER_NAME [REGISTER_NAME ...] [#Comment]
+    flag FLAG_NAME starting_bit number_of_bits value  [#Comment]
+    data  FLAG_NAME starting_bit number_of_bits [#Comment]
+}}}
+FLAG_NAME is a string, other parameters are decimal numbers
+
+== Application Example: DA Converter ==
+Assume, there are 2 identical DA converters implemented on your embedded-board.
+The 32-Bit registers are mapped into user space memory.
+There are registers for output and configuration.
+Registers:
+{{{
+  AnOutX - Data output to this register will be converted to analogue signal
+  AnOutConfX - Configuration register
+    Bit  0     - Enable if 1, disable otherwise
+    Bits 1-9   - Set voltage offset 
+    Bits 10-19 - Output voltage MIN 
+    Bits 20-29 - Output voltage MAX 
+    Bits 30-31 - Output update mode, where modes are:
+      0        -   OnChange
+      1        -   1us
+      2        -   1ms
+      3        -   1s
+}}}
+
+In GMT-syntax the data could be described like this:
+{{{
+#Register definition for DA Converter 1:
+  reg AnOut0       0   rw
+  reg AnOutConf0   1   rw
+#Register definition for DA Converter 2:
+   reg AnOut1       2   rw
+   reg AnOutConf1   3   rw
+#Flags definition for config registers.
+   for_regs AnOutConf0 AnOutConf1
+     flag ENABLE 0 1 1      #Bit 0 - enable if 1
+     data VOL_OFFSET 1 9    #Bits 1-9   - voltage offset 
+     data VOL_MIN 10 9      #Bits 10-19   - Output voltage MIN
+     data VOL_MAX 20 9      #Bits 20-29   - Output voltage MAX
+     flag OM_CHG  30 2 0    #Bits 30-31   - 0 = output mode 'On change'
+     flag OM_CHG  30 2 1    #Bits 30-31   - 1 = output mode 1us
+     flag OM_CHG  30 2 2    #Bits 30-31   - 2 = output mode 1ms
+     flag OM_CHG  30 2 3    #Bits 30-31   - 3 = output mode 1s
+#Flags definition for data register.
+   for_regs AnOut0 AnOut1
+     data OUT_VALUE 0 31    #32-bit DA data
+}}}
+
+For testing this piece of hardware, an application should: 
+  * create an instance of GMT,
+  * mmap the registers into user space
+  * reading above configuration from a file into gmt
+  * set the pointer to shared memory in gmt
+  * read commands from standard input and send them to gmt
+
+The command *d* (dump) would output the contents of the memory.
+{{{
+AnOut0              00000000000000000000000000000000  0x0       : OUT_VALUE=0 
+AnOutConf0          00000000000000000000000000000000  0x0       : VOL_OFFSET=0 VOL_MIN=0 VOL_MAX=0 OM_CHG
+AnOut1              00000000000000000000000000000000  0x0       : OUT_VALUE=0
+AnOutConf1          00000000000000000000000000000000  0x0       : VOL_OFFSET=0 VOL_MIN=0 VOL_MAX=0 OM_CHG
+}}}
+The columns are: register name, binary value of register, hex-value, flags or/and data  
+
+The command `s AnOut0 4711` would set the value of register AnOut0 to 4711
+The command `p 4711` would print register-information for AnOut0. (like dump)
+{{{
+AnOut0              00000000000000000001001001100111  0x1267    : OUT_VALUE=4711
+}}}
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
