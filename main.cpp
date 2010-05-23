@@ -114,9 +114,9 @@ const char * getConfigData()
    "  data VOL_MIN 10 9      #Bits 10-19   - Output voltage MIN \n"\
    "  data VOL_MAX 20 9      #Bits 20-29   - Output voltage MAX \n"\
    "  flag OM_CHG  30 2 0    #Bits 30-31   - 0 = output mode 'On change'\n"\
-   "  flag OM_CHG  30 2 1    #Bits 30-31   - 1 = output mode 1us\n"\
-   "  flag OM_CHG  30 2 2    #Bits 30-31   - 2 = output mode 1ms\n"\
-   "  flag OM_CHG  30 2 3    #Bits 30-31   - 3 = output mode 1s\n"\
+   "  flag OM_1US  30 2 1    #Bits 30-31   - 1 = output mode 1us\n"\
+   "  flag OM_1MS  30 2 2    #Bits 30-31   - 2 = output mode 1ms\n"\
+   "  flag OM_1S   30 2 3    #Bits 30-31   - 3 = output mode 1s\n"\
    "#Flags definition for data register. \n"\
    "for_regs AnOut0 AnOut1\n"\
    "  data OUT_VALUE 0 31    #32-bit DA data \n";
