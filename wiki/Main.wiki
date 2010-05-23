@@ -109,5 +109,5 @@ AnOutConf0          10000110010000000010100000000001  0x86402801: ENABLE VOL_OFF
 And finally the command *h* would display online-help.
 
 Have Fun!
-Valentin Heinitz
-http://heinitz-it.de
+
+Valentin Heinitz, http://heinitz-it.de
