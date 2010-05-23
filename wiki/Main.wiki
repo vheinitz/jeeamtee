@@ -70,9 +70,9 @@ In GMT-syntax the data could be described like this:
      data VOL_MIN 10 9      #Bits 10-19   - Output voltage MIN
      data VOL_MAX 20 9      #Bits 20-29   - Output voltage MAX
      flag OM_CHG  30 2 0    #Bits 30-31   - 0 = output mode 'On change'
-     flag OM_CHG  30 2 1    #Bits 30-31   - 1 = output mode 1us
-     flag OM_CHG  30 2 2    #Bits 30-31   - 2 = output mode 1ms
-     flag OM_CHG  30 2 3    #Bits 30-31   - 3 = output mode 1s
+     flag OM_1US  30 2 1    #Bits 30-31   - 1 = output mode 1us
+     flag OM_1MS  30 2 2    #Bits 30-31   - 2 = output mode 1ms
+     flag OM_1S   30 2 3    #Bits 30-31   - 3 = output mode 1s
 #Flags definition for data register.
    for_regs AnOut0 AnOut1
      data OUT_VALUE 0 31    #32-bit DA data
@@ -85,7 +85,7 @@ For testing this piece of hardware, an application should:
   * set the pointer to shared memory in gmt
   * read commands from standard input and send them to gmt
 
-The command *d* (dump) would output the contents of the memory.
+The command *d* (dump): output the contents of the memory.
 {{{
 AnOut0              00000000000000000000000000000000  0x0       : OUT_VALUE=0 
 AnOutConf0          00000000000000000000000000000000  0x0       : VOL_OFFSET=0 VOL_MIN=0 VOL_MAX=0 OM_CHG
@@ -94,15 +94,20 @@ AnOutConf1          00000000000000000000000000000000  0x0       : VOL_OFFSET=0 V
 }}}
 The columns are: register name, binary value of register, hex-value, flags or/and data  
 
-The command `s AnOut0 4711` would set the value of register AnOut0 to 4711
-The command `p 4711` would print register-information for AnOut0. (like dump)
+The command *s* (set register): `s AnOut0 4711` set the value of register AnOut0 to 4711
+
+The command *p* (print register): `p AnOut0` would print register-information for AnOut0. (like dump)
 {{{
 AnOut0              00000000000000000001001001100111  0x1267    : OUT_VALUE=4711
 }}}
 
-= Details =
+The command *sb* (set bit): `sb AnOutConf0 ENABLE VOL_MIN=10 VOL_MAX=100 OM_1MS` would set flags and data-fields of AnOutConf0. Print `p AnOutConf0` to show the changes:
+{{{
+AnOutConf0          10000110010000000010100000000001  0x86402801: ENABLE VOL_OFFSET=0 VOL_MIN=10 VOL_MAX=100 OM_1MS
+}}}
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+And finally the command *h* would display online-help.
+
+Have Fun!
+Valentin Heinitz
+http://heinitz-it.de
